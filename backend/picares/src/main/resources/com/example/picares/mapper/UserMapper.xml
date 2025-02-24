@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.picares.mapper.UserMapper">
+    <update id="updateUser">
+        update user
+        <set>
+            <if test="userAccount!=null">userAccount=#{userAccount},</if>
+            <if test="userName!=null">userName=#{userName},</if>
+            <if test="userAvatar!=null">userAvatar=#{userAvatar},</if>
+            <if test="userProfile!=null">userProfile=#{userProfile},</if>
+            <if test="userRole!=null"> userRole=#{userRole},</if>
+        </set>
+        where id=#{id} and
+        <include refid="logic" />
+    </update>
+    <select id="selectUser" resultType="com.example.picares.model.vo.GetUserVO">
+        select * from user
+        <where>
+            <if test="userAccount!=null">userAccount like concat("%", #{userAccount}, "%") and</if>
+            <if test="userName!=null">userName like concat("%", #{userName}, "%") and</if>
+            <if test="userProfile!=null">userProfile like concat("%", #{userProfile}, "%") and</if>
+            <if test="userRole!=null">userRole=#{userRole} and</if>
+            <include refid="logic" />
+        </where>
+        <if test="sortField!=null">order by ${sortField} ${sortOrder}</if>
+        limit #{current},#{pageSize}
+    </select>
+    <select id="selectUserCount">
+        select count(*) from user
+        <where>
+            <if test="userAccount!=null">userAccount like concat("%", #{userAccount}, "%") and</if>
+            <if test="userName!=null">userName like concat("%", #{userName}, "%") and</if>
+            <if test="userProfile!=null">userProfile like concat("%", #{userProfile}, "%") and</if>
+            <if test="userRole!=null">userRole=#{userRole} and</if>
+            <include refid="logic" />
+        </where>
+    </select>
+    <sql id="logic">
+        isDelete=0
+    </sql>
+</mapper>
