@@ -6,6 +6,7 @@ import java.nio.file.Files;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -59,10 +60,11 @@ public class PictureController {
     @PostMapping("/upload")
     @AuthCheck(mustRole = UserConstant.USER_ROLE)
     public BaseResponse<Boolean> uploadUser(@RequestParam("image") MultipartFile multipartFile,
-            @RequestBody PictureUploadDTO pictureUploadDTO,
+            @ModelAttribute PictureUploadDTO pictureUploadDTO,
             HttpServletRequest request) {
         ThrowUtil.throwIf(multipartFile == null, ErrorCode.PARAMS_ERROR);
         ThrowUtil.throwIf(pictureUploadDTO == null, ErrorCode.PARAMS_ERROR);
+
         Picture picture = new Picture();
         BeanUtils.copyProperties(pictureUploadDTO, picture);
 

@@ -39,7 +39,8 @@ public class MyController {
     private UserMapper userMapper;
 
     @PostMapping("/upload/test")
-    public void uploadImages(@RequestParam("image") MultipartFile multipartFile, @ModelAttribute Test test) {
+    public BaseResponse<Boolean> uploadImages(@RequestParam("image") MultipartFile multipartFile,
+            @ModelAttribute Test test) {
         System.out.println("获取的参数" + test.toString());
         try {
             InputStream inputStream = multipartFile.getInputStream();
@@ -54,6 +55,7 @@ public class MyController {
             File dest = new File(dir.getAbsolutePath() + File.separator + "apple" + "." + type);
             System.out.println("图片路径：" + dest);
             ImageIO.write(image, type, dest);
+            return ResultUtil.success(true);
         } catch (IOException e) {
             e.printStackTrace();
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "图片上传失败");

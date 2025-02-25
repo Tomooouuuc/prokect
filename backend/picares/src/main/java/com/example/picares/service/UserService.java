@@ -1,5 +1,8 @@
 package com.example.picares.service;
 
+import org.springframework.web.multipart.MultipartFile;
+
+import com.example.picares.model.dto.picture.PictureUploadDTO;
 import com.example.picares.model.dto.user.UserQueryDTO;
 import com.example.picares.model.entity.User;
 import com.example.picares.model.vo.LoginUserVO;
@@ -21,4 +24,6 @@ public interface UserService {
     void deleteUser(Long id);
 
     UserVO selectUser(UserQueryDTO userQueryDTO);
+
+    void updatePicture(MultipartFile multipartFile, PictureUploadDTO pictureUploadDTO, HttpServletRequest request);
 }
