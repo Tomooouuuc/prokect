@@ -1,7 +1,8 @@
 "use client";
+import request from "@/lib/request";
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import type { GetProp, UploadProps } from "antd";
-import { Form, Upload, message } from "antd";
+import { Button, Form, Input, Upload, message } from "antd";
 import { Image } from "antd/lib";
 import React, { useState } from "react";
 
@@ -28,18 +29,45 @@ const beforeUpload = (file: FileType) => {
 const TestPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState<string>();
+  const [file, setFile] = useState(null);
+  const [form] = Form.useForm();
 
-  const handleChange: UploadProps["onChange"] = (info) => {
-    if (info.file.status === "uploading") {
-      setLoading(true);
-      return;
-    }
+  const handleChange = (info) => {
     if (info.file.status === "done") {
-      // Get this url from response in real world.
+      setFile(info.file.originFileObj);
       getBase64(info.file.originFileObj as FileType, (url) => {
         setLoading(false);
         setImageUrl(url);
       });
+    }
+  };
+
+  const doSubmit = async (values) => {
+    //在这里拿到图片和图片的描述和作者，调用后端的upload接口将图片和图片信息一起上传到后端
+    if (!file) {
+      message.error("请选择上传图片");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("image", file);
+    formData.append("name", values.name);
+    formData.append("description", values.description);
+
+    try {
+      await request("/test/upload/test", {
+        method: "POST",
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        data: formData,
+      });
+      message.success("上传成功");
+      form.resetFields();
+      setFile(null);
+    } catch (error) {
+      message.error("上传失败");
+      console.error("上传错误:", error);
     }
   };
 
@@ -62,14 +90,19 @@ const TestPage: React.FC = () => {
         wrapperCol={{ span: 14 }}
         layout="horizontal"
         style={{ maxWidth: 600 }}
+        onFinish={doSubmit}
+        onChange={handleChange}
       >
-        <Form.Item valuePropName="fileList" getValueFromEvent={normFile}>
+        <Form.Item
+          name="image"
+          valuePropName="fileList"
+          getValueFromEvent={normFile}
+        >
           <Upload
             name="avatar"
             listType="picture-card"
             className="avatar-uploader"
             showUploadList={false}
-            action="http://localhost:8123/api/test/upload/image"
             beforeUpload={beforeUpload}
             onChange={handleChange}
           >
@@ -79,6 +112,17 @@ const TestPage: React.FC = () => {
               uploadButton
             )}
           </Upload>
+        </Form.Item>
+        <Form.Item label="name" name="name">
+          <Input />
+        </Form.Item>
+        <Form.Item label="description" name="description">
+          <Input />
+        </Form.Item>
+        <Form.Item label={null}>
+          <Button type="primary" htmlType="submit">
+            提交
+          </Button>
         </Form.Item>
       </Form>
       <Image

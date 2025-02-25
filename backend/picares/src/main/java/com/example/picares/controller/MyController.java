@@ -14,6 +14,7 @@ import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,6 +27,7 @@ import com.example.picares.common.ResultUtil;
 import com.example.picares.exception.BusinessException;
 import com.example.picares.exception.ErrorCode;
 import com.example.picares.mapper.UserMapper;
+import com.example.picares.test.Test;
 
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
@@ -35,6 +37,28 @@ import jakarta.servlet.http.HttpServletResponse;
 public class MyController {
     @Resource
     private UserMapper userMapper;
+
+    @PostMapping("/upload/test")
+    public void uploadImages(@RequestParam("image") MultipartFile multipartFile, @ModelAttribute Test test) {
+        System.out.println("获取的参数" + test.toString());
+        try {
+            InputStream inputStream = multipartFile.getInputStream();
+            BufferedImage image = ImageIO.read(inputStream);
+            String type = getImageFormat(multipartFile.getInputStream());
+            System.out.println("图片类型：" + type);
+            String uploadDir = "images";
+            File dir = new File(uploadDir);
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+            File dest = new File(dir.getAbsolutePath() + File.separator + "apple" + "." + type);
+            System.out.println("图片路径：" + dest);
+            ImageIO.write(image, type, dest);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "图片上传失败");
+        }
+    }
 
     @PostMapping("/upload/image")
     public BaseResponse<Boolean> uploadImage(@RequestParam("avatar") MultipartFile multipartFile) throws IOException {
